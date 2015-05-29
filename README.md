@@ -5,7 +5,10 @@ gsync is an asynchronous control flow framework for use with es6 generators in N
 * `gsync.series([], function(err))`
 * `gsync.parallel([], function(err))`
 
-## Examples
+## Node.js
+Requires `--harmony_generators` flag to be set.
+
+# Examples
 
 ## **gsync.series**
 Execute generators and functions in the order specified, including nested generators.
