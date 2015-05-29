@@ -1,0 +1,24 @@
+{
+  "esnext": true,
+
+  "nonew": true,
+  "noarg": true,
+  "forin": true,
+  "unused": true,
+  "eqeqeq": true,
+  "undef": true,
+  "bitwise": true,
+  "curly": false,
+
+  "node": true,
+  "onevar": false,
+  "asi": false,
+  "eqnull": true,
+  "expr": false,
+  "loopfunc": true,
+  "sub": true,
+  "browser": true,
+  "mocha": true,
+
+  "indent": 2
+}
