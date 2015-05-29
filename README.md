@@ -83,3 +83,6 @@ gsync.parallel([
 });
 
 ```
+
+# License
+**MIT**
