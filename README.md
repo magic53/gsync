@@ -7,7 +7,7 @@ gsync is an asynchronous control flow framework for use with es6 generators. The
 
 ## Examples
 
-**gsync.series**
+## **gsync.series**
 Execute generators and functions in the order specified, including nested generators.
 ```
 function doSomeWork(param, callback) {
@@ -43,7 +43,7 @@ gsync.series([
 
 ```
 
-**gsync.parallel**
+## **gsync.parallel**
 Execute all generators and functions as fast as possible in parallel, including nested generators. Note that generators are inherently serial (iterators) and will internally execute their respective yields as such. However, generators specified in the top level array will continue executing in parallel.
 ```
 function doSomeWork(param, callback) {
