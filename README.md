@@ -1,5 +1,5 @@
 # gsync
-gsync is an asynchronous control flow framework for use with es6 generators. The framework models existing Javascript callback methodology, resulting in easier adoption of es6 generators into existing projects.
+gsync is an asynchronous control flow framework for use with es6 generators in Node.js (browser support coming soon). The framework models existing Javascript callback methodology, resulting in easier adoption of es6 generators into existing projects.
 
 ## Control Flow Functions
 * `gsync.series([], function(err, result))`
