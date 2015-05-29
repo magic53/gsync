@@ -13,6 +13,7 @@ coverage
 
 build/Release
 node_modules
+bower_components
 
 .idea
 *.iml

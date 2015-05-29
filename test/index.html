@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <script src="../bower_components/setImmediate/setimmediate.js"></script>
+  <script src="../lib/gsync.js"></script>
+</head>
+<body>
+<script>
+  function doSomeWork(param, callback) {
+    setTimeout(function() { callback(null, param.url); }, Math.random() * 500);
+  }
+  gsync.series([
+    // generator
+    function*(next) {
+      var json = yield doSomeWork({ url: 'example.com/series/?1a' }, next);
+      console.log(json);
+      var moreJson = yield doSomeWork({ url: 'example.com/series/?1b' }, next);
+      console.log(moreJson);
+    },
+    // generator
+    function*(next) {
+      var json = yield doSomeWork({ url: 'example.com/series/?2a' }, next);
+      console.log(json);
+      var moreJson = yield doSomeWork({ url: 'example.com/series/?2b' }, next);
+      console.log(moreJson);
+    },
+    // Mix non-generator callbacks
+    function(next) {
+      doSomeWork({ url: 'example.com/series/?3' }, function(err, result) {
+        console.log(result);
+        next(err);
+      });
+    }
+  ], function (err) {
+    console.log('gsync.series Done!');
+  });
+
+  gsync.parallel([
+    // generator
+    function*(next) {
+      var json = yield doSomeWork({ url: 'example.com/parallel/?1a' }, next);
+      console.log(json);
+      var moreJson = yield doSomeWork({ url: 'example.com/parallel/?1b' }, next);
+      console.log(moreJson);
+    },
+    // generator
+    function*(next) {
+      var json = yield doSomeWork({ url: 'example.com/parallel/?2a' }, next);
+      console.log(json);
+      var moreJson = yield doSomeWork({ url: 'example.com/parallel/?2b' }, next);
+      console.log(moreJson);
+    },
+    // Mix non-generator callbacks
+    function(next) {
+      doSomeWork({ url: 'example.com/parallel/?3' }, function(err, result) {
+        console.log(result);
+        next(err);
+      });
+    },
+    // generator
+    function*(next) {
+      var json = yield doSomeWork({ url: 'example.com/parallel/?4' }, next);
+      console.log(json);
+    }
+  ], function (err) {
+    console.log('gsync.parallel Done!');
+  });
+
+</script>
+</body>
+</html>

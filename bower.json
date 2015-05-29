@@ -1,0 +1,31 @@
+{
+  "name": "gsync",
+  "description": "Asynchronous control flow with generators",
+  "version": "0.8.2",
+  "author": "Michael Madgett",
+  "main": "lib/gsync.js",
+  "keywords": [
+    "generators",
+    "control flow",
+    "process"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/magic53/gsync.git"
+  },
+  "moduleType": [
+    "amd",
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules",
+    "test"
+  ],
+  "dependencies": {
+    "setImmediate": "~1.0.1"
+  },
+  "devDependencies": {},
+  "license": "MIT"
+}
