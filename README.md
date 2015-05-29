@@ -2,8 +2,8 @@
 gsync is an asynchronous control flow framework for use with es6 generators in Node.js (browser support coming soon). The framework models existing Javascript callback methodology, resulting in easier adoption of es6 generators into existing projects.
 
 ## Control Flow Functions
-* `gsync.series([], function(err, result))`
-* `gsync.parallel([], function(err, result))`
+* `gsync.series([], function(err))`
+* `gsync.parallel([], function(err))`
 
 ## Examples
 
@@ -38,7 +38,6 @@ gsync.series([
   }
 ], function (err) {
   console.log('gsync.series done!');
-  done();
 });
 
 ```
@@ -79,7 +78,6 @@ gsync.parallel([
   }
 ], function (err) {
   console.log('gsync.parallel done!');
-  done();
 });
 
 ```
