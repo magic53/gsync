@@ -8,6 +8,12 @@ gsync is an asynchronous control flow framework for use with es6 generators in N
 ## Node.js
 Requires `--harmony_generators` flag to be set.
 
+## Installation
+# Node
+`npm install gsync`
+# Browser
+`bower install gsync`
+
 # Examples
 
 ## **gsync.series**
