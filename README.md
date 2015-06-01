@@ -11,6 +11,7 @@ Requires `--harmony_generators` flag to be set.
 ## Installation
 **Node**
 `npm install gsync`
+
 **Browser**
 `bower install gsync`
 
