@@ -18,7 +18,7 @@ Requires `--harmony_generators` flag to be set.
 
 # Examples
 
-## **gsync(function*)**
+## **gsync(function\*)**
 Execute a single generator function (also accepts non-generator functions).
 ```
 var results = [];
