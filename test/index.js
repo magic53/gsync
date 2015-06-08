@@ -11,6 +11,69 @@ describe('gsync', function() {
     callback(param.error, param.value);
   }
 
+  describe('constructor', function() {
+
+    it('gsync() should process generator', function(done) {
+      var values = ['1a', '1b'];
+      var validate = [];
+      gsync(function*(next) {
+        var result = yield syncFunc({ error: null, value: values[0] }, next);
+        validate.push(result);
+
+        result = yield syncFunc({ error: null, value: values[1] }, next);
+        validate.push(result);
+      }, function (err) {
+        should(err).not.be.ok;
+        validate.should.be.eql(values);
+        done();
+      });
+    });
+
+    it('gsync() should process generator and throw error', function(done) {
+      var values = ['1a', '1b'];
+      var validate = [];
+      gsync(function*(next) {
+        var result = yield syncFunc({ error: 'oops', value: values[0] }, next);
+        validate.push(result);
+        validate.should.be.empty;
+
+        result = yield syncFunc({ error: null, value: values[1] }, next);
+        validate.push(result);
+      }, function (err) {
+        should(err).be.ok.and.be.equal('oops');
+        validate.should.be.empty;
+        done();
+      });
+    });
+
+    it('gsync() should process function', function(done) {
+      var values = ['1a'];
+      var validate = [];
+      gsync(function(next) {
+        syncFunc({ error: null, value: values[0] }, function(err, result) {
+          validate.push(result);
+          next(err);
+        });
+      }, function (err) {
+        should(err).not.be.ok;
+        validate.should.be.eql(values);
+        done();
+      });
+    });
+
+    it('gsync() should process function and throw error', function(done) {
+      gsync(function(next) {
+        syncFunc({ error: 'oops', value: '1a' }, function(err, result) {
+          next(err);
+        });
+      }, function (err) {
+        should(err).be.ok.and.be.equal('oops');
+        done();
+      });
+    });
+
+  });
+
   describe('series', function() {
 
     it('gsync.series should process synchronous generators', function(done) {
@@ -354,26 +417,26 @@ describe('gsync', function() {
         // generator
         function*(next) {
           var json = yield doSomeWork({ url: 'example.com/series/?1a' }, next);
-          console.log(json);
+          debug(json);
           var moreJson = yield doSomeWork({ url: 'example.com/series/?1b' }, next);
-          console.log(moreJson);
+          debug(moreJson);
         },
         // generator
         function*(next) {
           var json = yield doSomeWork({ url: 'example.com/series/?2a' }, next);
-          console.log(json);
+          debug(json);
           var moreJson = yield doSomeWork({ url: 'example.com/series/?2b' }, next);
-          console.log(moreJson);
+          debug(moreJson);
         },
         // Mix non-generator callbacks
         function(next) {
           doSomeWork({ url: 'example.com/series/?3' }, function(err, result) {
-            console.log(result);
+            debug(result);
             next(err);
           });
         }
       ], function (err) {
-        console.log('gsync.series Done!');
+        debug('gsync.series Done!');
         done();
       });
 
@@ -385,31 +448,31 @@ describe('gsync', function() {
         // generator
         function*(next) {
           var json = yield doSomeWork({ url: 'example.com/parallel/?1a' }, next);
-          console.log(json);
+          debug(json);
           var moreJson = yield doSomeWork({ url: 'example.com/parallel/?1b' }, next);
-          console.log(moreJson);
+          debug(moreJson);
         },
         // generator
         function*(next) {
           var json = yield doSomeWork({ url: 'example.com/parallel/?2a' }, next);
-          console.log(json);
+          debug(json);
           var moreJson = yield doSomeWork({ url: 'example.com/parallel/?2b' }, next);
-          console.log(moreJson);
+          debug(moreJson);
         },
         // Mix non-generator callbacks
         function(next) {
           doSomeWork({ url: 'example.com/parallel/?3' }, function(err, result) {
-            console.log(result);
+            debug(result);
             next(err);
           });
         },
         // generator
         function*(next) {
           var json = yield doSomeWork({ url: 'example.com/parallel/?4' }, next);
-          console.log(json);
+          debug(json);
         }
       ], function (err) {
-        console.log('gsync.parallel Done!');
+        debug('gsync.parallel Done!');
         done();
       });
 

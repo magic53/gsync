@@ -1,7 +1,7 @@
 {
   "name": "gsync",
   "description": "Asynchronous control flow with generators",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "author": "Michael Madgett",
   "main": "lib/gsync.js",
   "keywords": [
