@@ -2,8 +2,8 @@
 gsync is an asynchronous control flow framework for use with es6 generators in Node.js and the browser. The framework models existing Javascript callback methodology, resulting in easier adoption of es6 generators into existing projects.
 
 ## Control Flow Functions
-* `gsync(function*(err))`
-* `gsync.series([], function(err))`
+* `gsync(function*, function(err, result))`
+* `gsync.series([], function(err, result))`
 * `gsync.parallel([], function(err))`
 
 ## Node.js
@@ -18,8 +18,8 @@ Requires `--harmony_generators` flag to be set.
 
 # Examples
 
-## **gsync(function\*)**
-Execute a single generator function (also accepts non-generator functions).
+## **gsync(function\*, callback)**
+Execute a single generator function (also accepts non-generator functions). The last yielded value will be passed to the final callback function as the result.
 ```
 var results = [];
 gsync(function*(next) {
@@ -27,8 +27,10 @@ gsync(function*(next) {
   results.push(result1);
   var result2 = yield doSomeWork({ error: null, value: '2' }, next);
   results.push(result2);
-}, function (err) {
-  console.log(results); // prints ['1','2']
+  // Note* that calling this below will override the yielded result to the final callback.
+  // next(null, 'result value');
+}, function (err, result) {
+  console.log(results); // prints: 2
 });
 
 function doSomeWork(param, callback) {
@@ -58,11 +60,11 @@ gsync.series([
   function(next) {
     doSomeWork({ url: 'example.com/series/?3' }, function(err, result) {
       console.log(result);
-      next(err);
+      next(err, result);
     });
   }
-], function (err) {
-  console.log('gsync.series done!');
+], function (err, result) {
+  console.log('gsync.series done!', result); // prints: gsync.series done! example.com/series/?3
 });
 
 // sample async function

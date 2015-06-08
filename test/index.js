@@ -22,7 +22,27 @@ describe('gsync', function() {
 
         result = yield syncFunc({ error: null, value: values[1] }, next);
         validate.push(result);
-      }, function (err) {
+
+        next(null, 'last value');
+      }, function (err, result) {
+        should(result).be.ok.and.be.equal('last value');
+        should(err).not.be.ok;
+        validate.should.be.eql(values);
+        done();
+      });
+    });
+
+    it('gsync() should process generator and return the last yielded value', function(done) {
+      var values = ['1a', '1b-yielded'];
+      var validate = [];
+      gsync(function*(next) {
+        var result = yield syncFunc({ error: null, value: values[0] }, next);
+        validate.push(result);
+
+        result = yield syncFunc({ error: null, value: values[1] }, next);
+        validate.push(result);
+      }, function (err, result) {
+        should(result).be.ok.and.be.equal(values[1]);
         should(err).not.be.ok;
         validate.should.be.eql(values);
         done();
@@ -52,10 +72,11 @@ describe('gsync', function() {
       gsync(function(next) {
         syncFunc({ error: null, value: values[0] }, function(err, result) {
           validate.push(result);
-          next(err);
+          next(err, result);
         });
-      }, function (err) {
+      }, function (err, result) {
         should(err).not.be.ok;
+        should(result).be.ok.and.be.equal('1a');
         validate.should.be.eql(values);
         done();
       });
@@ -64,9 +85,10 @@ describe('gsync', function() {
     it('gsync() should process function and throw error', function(done) {
       gsync(function(next) {
         syncFunc({ error: 'oops', value: '1a' }, function(err, result) {
-          next(err);
+          next(err, result);
         });
-      }, function (err) {
+      }, function (err, result) {
+        should(result).be.ok.and.be.equal('1a');
         should(err).be.ok.and.be.equal('oops');
         done();
       });
@@ -98,8 +120,9 @@ describe('gsync', function() {
           result = yield syncFunc({ error: null, value: values[4] }, next);
           validate.push(result);
         }
-      ], function (err) {
+      ], function (err, result) {
         should(err).not.be.ok;
+        should(result).be.ok.and.be.equal(values[4]);
         validate.should.be.eql(values);
         done();
       });
@@ -127,8 +150,9 @@ describe('gsync', function() {
           result = yield asyncFunc({ error: null, value: values[4], delay: Math.random() * 300 }, next);
           validate.push(result);
         }
-      ], function (err) {
+      ], function (err, result) {
         should(err).not.be.ok;
+        should(result).be.ok.and.be.equal(values[4]);
         validate.should.be.eql(values);
         done();
       });
@@ -158,8 +182,9 @@ describe('gsync', function() {
           result = yield asyncFunc({ error: null, value: values[4], delay: Math.random() * 300 }, next);
           validate.push(result);
         }
-      ], function (err) {
+      ], function (err, result) {
         should(err).not.be.ok;
+        should(result).be.ok.and.be.equal(values[4]);
         validate.should.be.eql(values);
         done();
       });
@@ -192,11 +217,12 @@ describe('gsync', function() {
         function(next) {
           asyncFunc({ error: null, value: values[5], delay: Math.random() * 300 }, function(err, val) {
             validate.push(val);
-            next(err);
+            next(err, val);
           });
         }
-      ], function (err) {
+      ], function (err, result) {
         should(err).not.be.ok;
+        should(result).be.ok.and.be.equal(values[5]);
         validate.should.be.eql(values);
         done();
       });
@@ -227,11 +253,12 @@ describe('gsync', function() {
         function(next) {
           asyncFunc({ error: null, value: values[3], delay: Math.random() * 300 }, function(err, val) {
             validate.push(val);
-            next(err);
+            next(err, val);
           });
         }
-      ], function (err) {
+      ], function (err, result) {
         should(err).not.be.ok;
+        should(result).be.ok.and.be.equal(values[3]);
         validate.should.be.eql(values);
         done();
       });
