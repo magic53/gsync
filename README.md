@@ -34,7 +34,7 @@ gsync(function*(next) {
 });
 
 function doSomeWork(param, callback) {
-  setTimeout(function() { callback(null, param.url); }, Math.random() * 500);
+  setTimeout(function() { callback(null, param.value); }, Math.random() * 500);
 }
 ```
 
