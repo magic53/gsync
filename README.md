@@ -11,9 +11,11 @@ Requires `--harmony_generators` flag to be set.
 
 ## Installation
 **Node**
+
 `npm install gsync`
 
 **Browser**
+
 `bower install gsync`
 
 # Examples
@@ -27,10 +29,11 @@ gsync(function*(next) {
   results.push(result1);
   var result2 = yield doSomeWork({ error: null, value: '2' }, next);
   results.push(result2);
-  // Note* that calling this below will override the yielded result to the final callback.
-  // next(null, 'result value');
+  // Note* that explicitly executing the callback at the end of the generator will override the yielded result to the final callback.
+  // next(null, 'result value'); // sends 'result value' to the callback
 }, function (err, result) {
-  console.log(results); // prints: 2
+  console.log(result); // prints: 2
+  console.log(results); // prints: [1, 2]
 });
 
 function doSomeWork(param, callback) {
@@ -38,7 +41,7 @@ function doSomeWork(param, callback) {
 }
 ```
 
-## **gsync.series**
+## **gsync.series([function\*], callback)**
 Execute generators and functions in the order specified, including nested generators.
 ```
 gsync.series([
@@ -73,7 +76,7 @@ function doSomeWork(param, callback) {
 }
 ```
 
-## **gsync.parallel**
+## **gsync.parallel([function\*], callback)**
 Execute all generators and functions as fast as possible in parallel, including nested generators. Note that generators are inherently serial (iterators) and will internally execute their respective yields as such. However, generators specified in the top level array will continue executing in parallel.
 ```
 gsync.parallel([
