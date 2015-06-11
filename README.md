@@ -116,6 +116,32 @@ function doSomeWork(param, callback) {
 }
 ```
 
+# Advanced: Nesting generators with gsync()
+The framework allows nesting gsync() calls for encapsulating nested generators. The gsync callback must be passed to each successive gsync() call. 
+```
+gsync(function*(next) {
+  var ab = yield doSomeWork({a:'1',b:'2'}, next);
+  
+  var cdef = yield gsync(function*(done){
+    var c = yield doSomeWork({c:'3'}, done);
+    var de = yield doSomeWork({d:'4',e:'5'}, done);
+    var f = yield gsync(function*(callback){
+      yield doSomeWork({f:'6'}, callback);
+    }, done);
+    done(null, _.assign(c, de, f));
+  }, next);
+  
+  next(null,_.assign(cdef, ab));
+  
+}, function(err, results) {
+  console.log(results); // prints: {a:'1', b:'2', c:'3', d:'4', e:'5', f:'6'}
+});
+
+function doSomeWork(param, callback) {
+  setTimeout(function() { callback(null, param); }, 20);  
+};
+```
+
 # License
 The MIT License (MIT)
 

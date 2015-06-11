@@ -1,5 +1,6 @@
 var should = require('should'),
     debug = require('debug'),
+    _ = require('lodash'),
     gsync = require('../lib/gsync');
 
 describe('gsync', function() {
@@ -94,6 +95,34 @@ describe('gsync', function() {
       });
     });
 
+    it('gsync() should process nested gsync() calls', function(done) {
+      var tdata = {a: '1',b: '2',c: '3',d: '4',e: '5',f: '6'};
+      gsync(function*(next) {
+        var ab = yield (function(nextCb) {
+          setTimeout(function() { nextCb(null, {a:'1',b:'2'}); }, 20);
+        })(next);
+        var cdef = yield gsync(function*(done){
+          var c = yield (function(nextCb) {
+            setTimeout(function() { nextCb(null, {c:'3'}); }, 20);
+          })(done);
+          var de = yield (function(nextCb) {
+            setTimeout(function() { nextCb(null, {d:'4',e:'5'}); }, 20);
+          })(done);
+          var f = yield gsync(function*(callback){
+            yield (function(nextCb) {
+              setTimeout(function() { nextCb(null, {f:'6'}); }, 20);
+            })(callback);
+          }, done);
+          done(null, _.assign(c, de, f));
+        }, next);
+        next(null,_.assign(cdef, ab));
+      }, function(err, results) {
+        should(err).not.be.ok;
+        results.should.be.eql(tdata);
+        done();
+      });
+    });
+
   });
 
   describe('series', function() {
@@ -133,21 +162,21 @@ describe('gsync', function() {
       var validate = [];
       gsync.series([
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[0], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[0], delay: Math.random() * 30 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, next);
+          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[2], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[2], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 30 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[4], delay: Math.random() * 300 }, next);
+          result = yield asyncFunc({ error: null, value: values[4], delay: Math.random() * 30 }, next);
           validate.push(result);
         }
       ], function (err, result) {
@@ -163,23 +192,23 @@ describe('gsync', function() {
       var validate = [];
       gsync.series([
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[0], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[0], delay: Math.random() * 30 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, next);
+          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function(next) {
-          asyncFunc({ error: null, value: values[2], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[2], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 30 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[4], delay: Math.random() * 300 }, next);
+          result = yield asyncFunc({ error: null, value: values[4], delay: Math.random() * 30 }, next);
           validate.push(result);
         }
       ], function (err, result) {
@@ -198,11 +227,11 @@ describe('gsync', function() {
           var result = yield syncFunc({ error: null, value: values[0] }, next);
           validate.push(result);
 
-          result = yield syncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, next);
+          result = yield syncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function(next) {
-          asyncFunc({ error: null, value: values[2], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[2], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
@@ -215,7 +244,7 @@ describe('gsync', function() {
           validate.push(result);
         },
         function(next) {
-          asyncFunc({ error: null, value: values[5], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[5], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err, val);
           });
@@ -233,25 +262,25 @@ describe('gsync', function() {
       var validate = [];
       gsync.series([
         function(next) {
-          asyncFunc({ error: null, value: values[0], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[0], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function(next) {
-          asyncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function(next) {
-          asyncFunc({ error: null, value: values[2], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[2], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function(next) {
-          asyncFunc({ error: null, value: values[3], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[3], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err, val);
           });
@@ -303,21 +332,21 @@ describe('gsync', function() {
       var validate = [];
       gsync.parallel([
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[0], delay: 1000 }, next);
+          var result = yield asyncFunc({ error: null, value: values[0], delay: 500 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, next);
+          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[2], delay: Math.random() * 800 }, next);
+          var result = yield asyncFunc({ error: null, value: values[2], delay: Math.random() * 300 }, next);
           validate.push(result);
         },
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 30 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[4], delay: 1000 }, next);
+          result = yield asyncFunc({ error: null, value: values[4], delay: 500 }, next);
           validate.push(result);
         }
       ], function (err) {
@@ -333,23 +362,23 @@ describe('gsync', function() {
       var validate = [];
       gsync.parallel([
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[0], delay: 1000 }, next);
+          var result = yield asyncFunc({ error: null, value: values[0], delay: 500 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, next);
+          result = yield asyncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function(next) {
-          asyncFunc({ error: null, value: values[2], delay: Math.random() * 300 }, function(err, val) {
+          asyncFunc({ error: null, value: values[2], delay: Math.random() * 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function*(next) {
-          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 300 }, next);
+          var result = yield asyncFunc({ error: null, value: values[3], delay: Math.random() * 30 }, next);
           validate.push(result);
 
-          result = yield asyncFunc({ error: null, value: values[4], delay: 1000 }, next);
+          result = yield asyncFunc({ error: null, value: values[4], delay: 500 }, next);
           validate.push(result);
         }
       ], function (err) {
@@ -368,11 +397,11 @@ describe('gsync', function() {
           var result = yield syncFunc({ error: null, value: values[0] }, next);
           validate.push(result);
 
-          result = yield syncFunc({ error: null, value: values[1], delay: Math.random() * 300 }, next);
+          result = yield syncFunc({ error: null, value: values[1], delay: Math.random() * 30 }, next);
           validate.push(result);
         },
         function(next) {
-          asyncFunc({ error: null, value: values[2], delay: 100 }, function(err, val) {
+          asyncFunc({ error: null, value: values[2], delay: 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
@@ -385,7 +414,7 @@ describe('gsync', function() {
           validate.push(result);
         },
         function(next) {
-          asyncFunc({ error: null, value: values[5], delay: 100 }, function(err, val) {
+          asyncFunc({ error: null, value: values[5], delay: 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
@@ -403,25 +432,25 @@ describe('gsync', function() {
       var validate = [];
       gsync.parallel([
         function(next) {
-          asyncFunc({ error: null, value: values[0], delay: 1000 }, function(err, val) {
+          asyncFunc({ error: null, value: values[0], delay: 500 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function(next) {
-          asyncFunc({ error: null, value: values[1], delay: 1000 }, function(err, val) {
+          asyncFunc({ error: null, value: values[1], delay: 500 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function(next) {
-          asyncFunc({ error: null, value: values[2], delay: 100 }, function(err, val) {
+          asyncFunc({ error: null, value: values[2], delay: 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
         },
         function(next) {
-          asyncFunc({ error: null, value: values[3], delay: 100 }, function(err, val) {
+          asyncFunc({ error: null, value: values[3], delay: 30 }, function(err, val) {
             validate.push(val);
             next(err);
           });
@@ -435,7 +464,7 @@ describe('gsync', function() {
     });
 
     function doSomeWork(param, callback) {
-      setTimeout(function() { callback(null, param.url); }, Math.random() * 500);
+      setTimeout(function() { callback(null, param.url); }, Math.random() * 60);
     }
 
     it('sample series', function(done) {
