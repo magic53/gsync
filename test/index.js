@@ -14,8 +14,8 @@ describe('gsync', function() {
 
   describe('constructor', function() {
 
-    it('gsync() should process generator', function(done) {
-      var values = ['1a', '1b'];
+    it('gsync() should process generator and return multiple values to callback', function(done) {
+      var values = ['1a', ['1b', '1c']];
       var validate = [];
       gsync(function*(next) {
         var result = yield syncFunc({ error: null, value: values[0] }, next);
@@ -24,16 +24,17 @@ describe('gsync', function() {
         result = yield syncFunc({ error: null, value: values[1] }, next);
         validate.push(result);
 
-        next(null, 'last value');
-      }, function (err, result) {
+        next(null, 'last value', 'after last value');
+      }, function (err, result, result2) {
         should(result).be.ok.and.be.equal('last value');
+        should(result2).be.ok.and.be.equal('after last value');
         should(err).not.be.ok;
         validate.should.be.eql(values);
         done();
       });
     });
 
-    it('gsync() should process generator and return the last yielded value', function(done) {
+    it('gsync() should process generator and automatically return the last yielded value', function(done) {
       var values = ['1a', '1b-yielded'];
       var validate = [];
       gsync(function*(next) {
@@ -463,77 +464,124 @@ describe('gsync', function() {
       });
     });
 
-    function doSomeWork(param, callback) {
-      setTimeout(function() { callback(null, param.url); }, Math.random() * 60);
-    }
+  });
 
-    it('sample series', function(done) {
+  it('gsync should work with promises', function(done) {
+    gsync(function*(next) {
+      var promise = loadAsyncData1();
+      var result = yield promise.then(val => next(null, val))
+        .catch(err => next(null, err));
+      should(result).be.equal('loadAsyncData1 after 1/4 second delay');
 
-      gsync.series([
-        // generator
-        function*(next) {
-          var json = yield doSomeWork({ url: 'example.com/series/?1a' }, next);
-          debug(json);
-          var moreJson = yield doSomeWork({ url: 'example.com/series/?1b' }, next);
-          debug(moreJson);
-        },
-        // generator
-        function*(next) {
-          var json = yield doSomeWork({ url: 'example.com/series/?2a' }, next);
-          debug(json);
-          var moreJson = yield doSomeWork({ url: 'example.com/series/?2b' }, next);
-          debug(moreJson);
-        },
-        // Mix non-generator callbacks
-        function(next) {
-          doSomeWork({ url: 'example.com/series/?3' }, function(err, result) {
-            debug(result);
-            next(err);
-          });
-        }
-      ], function (err) {
-        debug('gsync.series Done!');
-        done();
-      });
+      var promise2 = loadAsyncData2();
+      var result2 = yield promise2.then(val => next(null, val))
+        .catch(err => next(null, err));
+      should(result2).be.equal('loadAsyncData2 after 1/3 second delay');
 
+      var promise3 = loadAsyncData3();
+      var result3 = yield promise3.then(val => next(null, val))
+        .catch(err => next(null, err));
+      should(result3).be.equal('loadAsyncData3 Error');
+
+      done();
     });
 
-    it('sample parallel', function(done) {
-
-      gsync.parallel([
-        // generator
-        function*(next) {
-          var json = yield doSomeWork({ url: 'example.com/parallel/?1a' }, next);
-          debug(json);
-          var moreJson = yield doSomeWork({ url: 'example.com/parallel/?1b' }, next);
-          debug(moreJson);
-        },
-        // generator
-        function*(next) {
-          var json = yield doSomeWork({ url: 'example.com/parallel/?2a' }, next);
-          debug(json);
-          var moreJson = yield doSomeWork({ url: 'example.com/parallel/?2b' }, next);
-          debug(moreJson);
-        },
-        // Mix non-generator callbacks
-        function(next) {
-          doSomeWork({ url: 'example.com/parallel/?3' }, function(err, result) {
-            debug(result);
-            next(err);
-          });
-        },
-        // generator
-        function*(next) {
-          var json = yield doSomeWork({ url: 'example.com/parallel/?4' }, next);
-          debug(json);
-        }
-      ], function (err) {
-        debug('gsync.parallel Done!');
-        done();
+    function loadAsyncData1() {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          resolve("loadAsyncData1 after 1/4 second delay");
+          // reject("Error!");
+        }, 250);
       });
+    }
 
+    function loadAsyncData2() {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          resolve("loadAsyncData2 after 1/3 second delay");
+          // reject("Error!");
+        }, 333);
+      });
+    }
+
+    function loadAsyncData3() {
+      return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+          reject("loadAsyncData3 Error");
+        }, 200);
+      });
+    }
+  });
+
+  it('sample series', function(done) {
+
+    gsync.series([
+      // generator
+      function*(next) {
+        var json = yield doSomeAsyncWork({ url: 'example.com/series/?1a' }, next);
+        debug(json);
+        var moreJson = yield doSomeAsyncWork({ url: 'example.com/series/?1b' }, next);
+        debug(moreJson);
+      },
+      // generator
+      function*(next) {
+        var json = yield doSomeAsyncWork({ url: 'example.com/series/?2a' }, next);
+        debug(json);
+        var moreJson = yield doSomeAsyncWork({ url: 'example.com/series/?2b' }, next);
+        debug(moreJson);
+      },
+      // Mix non-generator callbacks
+      function(next) {
+        doSomeAsyncWork({ url: 'example.com/series/?3' }, function(err, result) {
+          debug(result);
+          next(err);
+        });
+      }
+    ], function (err) {
+      debug('gsync.series Done!');
+      done();
     });
 
   });
+
+  it('sample parallel', function(done) {
+
+    gsync.parallel([
+      // generator
+      function*(next) {
+        var json = yield doSomeAsyncWork({ url: 'example.com/parallel/?1a' }, next);
+        debug(json);
+        var moreJson = yield doSomeAsyncWork({ url: 'example.com/parallel/?1b' }, next);
+        debug(moreJson);
+      },
+      // generator
+      function*(next) {
+        var json = yield doSomeAsyncWork({ url: 'example.com/parallel/?2a' }, next);
+        debug(json);
+        var moreJson = yield doSomeAsyncWork({ url: 'example.com/parallel/?2b' }, next);
+        debug(moreJson);
+      },
+      // Mix non-generator callbacks
+      function(next) {
+        doSomeAsyncWork({ url: 'example.com/parallel/?3' }, function(err, result) {
+          debug(result);
+          next(err);
+        });
+      },
+      // generator
+      function*(next) {
+        var json = yield doSomeAsyncWork({ url: 'example.com/parallel/?4' }, next);
+        debug(json);
+      }
+    ], function (err) {
+      debug('gsync.parallel Done!');
+      done();
+    });
+
+  });
+
+  function doSomeAsyncWork(param, callback) {
+    setTimeout(function() { callback(null, param.url); }, Math.random() * 60);
+  }
 
 });

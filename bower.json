@@ -1,7 +1,7 @@
 {
   "name": "gsync",
   "description": "Asynchronous control flow with generators",
-  "version": "0.9.1",
+  "version": "1.0.1",
   "author": "Michael Madgett",
   "main": "lib/gsync.js",
   "keywords": [
@@ -23,9 +23,7 @@
     "node_modules",
     "test"
   ],
-  "dependencies": {
-    "setImmediate": "~1.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "license": "MIT"
 }
