@@ -1,12 +1,12 @@
 {
   "name": "gsync",
   "description": "Asynchronous control flow with generators",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Michael Madgett",
   "main": "lib/gsync.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --timeout 10000 test/**",
-    "test-coverage": "multi='dot=- html-cov=coverage.html' ./node_modules/mocha/bin/mocha -r blanket --reporter mocha-multi --no-colors --timeout 10000 test/**"
+    "test": "./node_modules/mocha/bin/_mocha --timeout 10000 test/**",
+    "test-coverage": "multi='dot=- html-cov=coverage.html' ./node_modules/mocha/bin/_mocha -r blanket --reporter mocha-multi --no-colors --timeout 10000 test/**"
   },
   "keywords": [
     "generators",
@@ -33,11 +33,11 @@
     }
   },
   "devDependencies": {
-    "blanket": "^1.1.7",
-    "debug": "^2.2.0",
-    "lodash": "^3.9.3",
-    "mocha": "^2.2.5",
-    "mocha-multi": "^0.7.1",
+    "blanket": "^1.2.3",
+    "debug": "^4.3.4",
+    "lodash": "^4.17.21",
+    "mocha": "^10.2.0",
+    "mocha-multi": "^1.1.7",
     "should": "^6.0.3"
   },
   "license": "MIT"
